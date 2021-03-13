@@ -5,7 +5,8 @@
 #include <gmp.h>
 #include <time.h>
 #include <assert.h>
-
+#include <fstream>
+using namespace std;
 typedef struct setup_output {
 
 	mpz_t k; 
@@ -219,13 +220,11 @@ void setup(mpz_t security_parameter)
 	 	element_printf("i= %d the element = %B  \n",i++, gt);
 	 	element_mul(gt, store_gen, gt);
 	 }	
-	/*for( int  i= 0 ;i<100;i++)
-	{
-		//pairing elment is g1
-		element_add(addgroup,addgroup,g1); 
-
-		element_printf("i= %d the element = %B  \n",i, addgroup);
-	}*/
+	//to output parameters in a.param file 
+	FILE *afile;
+   	afile= fopen("a.param", "w");
+	pbc_param_out_str(stdout, par);
+	pbc_param_out_str(afile, par);
 
 
 }
