@@ -225,7 +225,7 @@ void setup(mpz_t security_parameter)
    	afile= fopen("a.param", "w");
 	pbc_param_out_str(stdout, par);
 	pbc_param_out_str(afile, par);
-
+	//hi just checking stuff
 
 }
 
