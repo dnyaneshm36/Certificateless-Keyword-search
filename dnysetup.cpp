@@ -65,10 +65,7 @@ void random_prime_bits(mpz_t result, mpz_t n)
 	}
 }
 
-void set_globle_variable()
-{
 
-}
 void setup(mpz_t security_parameter) 
 {
 	 mpz_t rb; 
