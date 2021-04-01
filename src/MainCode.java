@@ -6,6 +6,11 @@ import java.io.FileNotFoundException;
 import java.math.BigInteger;
 import java.util.Scanner;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest; 
+import java.security.NoSuchAlgorithmException; 
+  
+
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Field;
 import it.unisa.dia.gas.jpbc.Pairing;
@@ -13,34 +18,99 @@ import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 
 public class MainCode {
 
-    static BigInteger hash2_asscii(String str, BigInteger q)
-    {
-        int l = str.length();
-        int convert;
-        BigInteger sum = new BigInteger("0");
-        for ( int i = 0 ; i < l ; i++ )
-        {
-            convert = (int) str.charAt(i) ;
+        public static byte[] getSHA(String input) throws NoSuchAlgorithmException
+        { 
+            // Static getInstance method is called with hashing SHA 
+            MessageDigest md = MessageDigest.getInstance("SHA-256"); 
 
-            // convert int to BigInteger
-            BigInteger bigconv = BigInteger.valueOf(convert);
-            sum = sum.add(bigconv);
+            // digest() method called 
+            // to calculate message digest of an input 
+            // and return array of byte
+            return md.digest(input.getBytes(StandardCharsets.UTF_8)); 
         }
-        sum = sum.mod(q);
+        
+        public static String toHexString(byte[] hash)
+        {
+            // Convert byte array into signum representation 
+            BigInteger number = new BigInteger(1, hash); 
 
-        // // converting String to ASCII value in Java 
-        // try {
-        //      String text = "ABCDEFGHIJKLMNOP"; 
-        // // translating text String to 7 bit ASCII encoding 
-        // byte[] bytes = text.getBytes("US-ASCII"); 
-        // System.out.println("ASCII value of " + text + " is following"); 
-        // System.out.println(Arrays.toString(bytes)); 
-        // } catch (java.io.UnsupportedEncodingException e)
-        //  {
-        //       e.printStackTrace(); 
-        // }
-        return sum;
-    }
+            // Convert message digest into hex value 
+            StringBuilder hexString = new StringBuilder(number.toString(16)); 
+
+            // Pad with leading zeros
+            while (hexString.length() < 32) 
+            { 
+                hexString.insert(0, '0'); 
+            } 
+            return hexString.toString(); 
+        }
+        //H1: {0,1}*→G1*
+        static Element hash1(String str,Pairing pairing)
+        {
+            String shastring = "";
+            try {
+              shastring = toHexString(getSHA(str));
+            } catch (NoSuchAlgorithmException e) {
+              System.out.println(" No such Algorithm exception occurred ");
+              e.printStackTrace();
+            }
+            byte [] shatringbyte = shastring.getBytes();
+    
+            Element g1 = pairing.getG1().newElement().setFromHash(shatringbyte, 0, shatringbyte.length);
+            return g1.duplicate();
+        }
+        //H2: {0,1}*→Zq*
+        static BigInteger hash2_asscii(String str, BigInteger q)
+        {
+            int l = str.length();
+            int convert;
+            BigInteger sum = new BigInteger("0");
+            for ( int i = 0 ; i < l ; i++ )
+            {
+                convert = (int) str.charAt(i) ;
+
+                // convert int to BigInteger
+                BigInteger bigconv = BigInteger.valueOf(convert);
+                sum = sum.add(bigconv);
+            }
+            sum = sum.mod(q);
+
+            // // converting String to ASCII value in Java 
+            // try {
+            //      String text = "ABCDEFGHIJKLMNOP"; 
+            // // translating text String to 7 bit ASCII encoding 
+            // byte[] bytes = text.getBytes("US-ASCII"); 
+            // System.out.println("ASCII value of " + text + " is following"); 
+            // System.out.println(Arrays.toString(bytes)); 
+            // } catch (java.io.UnsupportedEncodingException e)
+            //  {
+            //       e.printStackTrace(); 
+            // }
+            return sum;
+        }
+        //H3: {0,1}*→G1*
+        static Element hash3(String str,Pairing pairing)
+        {
+            String shastring = "";
+            try {
+              shastring = toHexString(getSHA(str));
+            } catch (NoSuchAlgorithmException e) {
+              System.out.println(" No such Algorithm exception occurred ");
+              e.printStackTrace();
+            }
+            byte [] shatringbyte = shastring.getBytes();
+    
+            Element g1 = pairing.getG1().newElement().setFromHash(shatringbyte, 0, shatringbyte.length);
+            return g1.duplicate();
+        }
+        // H4:G2→{0,1}f
+        static BigInteger hash4(Element G2pair)
+        {
+              byte [ ] G2pairbyte = G2pair.toBytes();
+      
+              BigInteger G2pairbiginterger = new BigInteger(G2pairbyte);
+              return G2pairbiginterger;
+        }
     public static void main(String[] args) throws Exception {
    
       long setup=0;
@@ -49,7 +119,8 @@ public class MainCode {
       long cipher = 0;
       long trapdoor = 0;
       long test = 0;
-      for ( int times  = 0 ; times<1000 ; times++){
+      // for ( int times  = 0 ; times<1000 ; times++){
+
 
         // int rBits = 7;
         // int qBits = 20;
@@ -138,9 +209,8 @@ public class MainCode {
         long  time_generater_key_start  = System.currentTimeMillis();
         ClientKey sender;
         String senderId = "senderid";
-        byte [] senderbyte = senderId.getBytes();
 
-        Element Qus = pairing.getG1().newElement().setFromHash(senderbyte, 0, senderbyte.length);
+        Element Qus = hash1(senderId, pairing).duplicate();
         Element Dus = Qus.duplicate();
         Dus.mulZn(master_key_lamda);
 
@@ -168,8 +238,7 @@ public class MainCode {
         
         ClientKey receiver;
         String receiverId = "receiverid";
-        byte [] receiverbyte = receiverId.getBytes();
-        Element Qur = pairing.getG1().newElement().setFromHash(receiverbyte, 0, receiverbyte.length);
+        Element Qur = hash1(receiverId, pairing);
         Element Dur = Qur.duplicate();
         Dur.mulZn(master_key_lamda);
         receiver = new ClientKey(receiverId, Qur, Dur);
@@ -210,13 +279,13 @@ public class MainCode {
         pair_sender_P  = pairing.pairing(sender.getPKu2(), r.getP());
 
         if( pair_sender_PKc.isEqual(pair_sender_P) )
-		{
-			System.out.println("\nPairing equal for receiver ");
-		}
-		else
-		{
-			System.out.println("\nfail turn ⊥ and about\n");
-		}
+        {
+          System.out.println("\nPairing equal for receiver ");
+        }
+        else
+        {
+          System.out.println("\nfail turn ⊥ and about\n");
+        }
 
         //checking pair is equal.
         Element pair_receiver_PKc,pair_receiver_P;
@@ -267,8 +336,8 @@ public class MainCode {
           QsRi.mulZn(Ri);    
           Element pair2 = pairing.pairing( QsRi , sender.getPKu2() );
           
-          byte [] wordByte = word.getBytes();
-          Element hash3_word = pairing.getG1().newElement().setFromHash(wordByte, 0, wordByte.length);
+          
+          Element hash3_word = hash3(word, pairing).duplicate();
           hash3_word.mulZn(Ri);
 
           Element pair3 = pairing.pairing( hash3_word , r.getP() );
@@ -277,10 +346,9 @@ public class MainCode {
           Ti.mul(pair2);
           Ti.mul(pair3);
 
-          byte [ ] byteVi = Ti.toBytes();
           Element Ui =  r.getP().duplicate();
           Ui.mulZn(Ri);
-          BigInteger Vi = new BigInteger(byteVi);
+          BigInteger Vi = hash4(Ti);
           CipherWord cipherword = new CipherWord(Ui,Vi);
 
           time_generater_key_end  = System.currentTimeMillis();
@@ -291,10 +359,13 @@ public class MainCode {
 
           time_generater_key_start  = System.currentTimeMillis();
 
+          String wordchecking = "wordto_encrption";
+          BigInteger hash2big = hash2_asscii(wordchecking, q);
+          Element hash2 = Zr.newElement(hash2big);
           Element T1 = r.getP().duplicate();
           T1.mulZn(r.getMaster_key_lamda());
           Element H2wSKR = receiver.getSKu2().duplicate();
-          H2wSKR.mulZn(hash);
+          H2wSKR.mulZn(hash2);
           Element lambdaPKs = sender.getPKu1().duplicate() ;
         //   System.out.println("lamsdf  H2wSKR  t2 -dash-"+H2wSKR);
           lambdaPKs.mulZn(r.getMaster_key_lamda());
@@ -306,42 +377,34 @@ public class MainCode {
         //   System.out.println("H2wSKR--- "+H2wSKR);
           byte [] lambdaPKsByte = lambdaPKs.toBytes();
           int lenFinal = Math.max(H2wSKRByte.length, lambdaPKsByte.length);
-          int[] T2intxor = new int[lenFinal];
-          for( int  i = 0 ; i < T2intxor.length ; i++ )
+          byte[] T2bytexor = new byte[lenFinal];
+          for( int  i = 0 ; i < lenFinal ; i++ )
           {
               byte x =  H2wSKRByte[i];
               byte y =  lambdaPKsByte[i];
               int xint = x;
               int yint = y;
               int ans = ( xint ^ yint );
-              T2intxor[i] = ans;
+              T2bytexor[i] = (byte) ans;
           }
-          byte[] T2bytexor = new byte[T2intxor.length];
-          for( int  i = 0 ; i < T2bytexor.length ; i++ )
-          {
-            T2bytexor[i] = (byte) T2intxor[i] ;
-          }
+          
           Element T2 = pairing.getG1().newElement();
           int bythread = T2.setFromBytes(T2bytexor);
-          byte [] wordByte2 = word.getBytes();
-          Element hash3_word2 = pairing.getG1().newElement().setFromHash(wordByte2, 0, wordByte2.length);
+          System.out.println(bythread);
+
+          Element hash3_word2 = hash3(wordchecking, pairing).duplicate();
          // System.out.println("hash3_word2 should be equal to t3 dash "+hash3_word2);
           byte [] hash3WordByte = hash3_word2.toBytes();
           lenFinal = Math.max(hash3WordByte.length, lambdaPKsByte.length);
-          int[] T3intxor = new int[lenFinal];
-          for( int  i = 0 ; i < T3intxor.length ; i++ )
+          byte[] T3bytexor = new byte[lenFinal];
+          for( int  i = 0 ; i < lenFinal ; i++ )
           {
               byte x =  hash3WordByte[i];
               byte y =  lambdaPKsByte[i];
               int xint = x;
               int yint = y;
               int ans = ( xint ^ yint );
-              T3intxor[i] = ans;
-          }
-          byte[] T3bytexor = new byte[T3intxor.length];
-          for( int  i = 0 ; i < T3bytexor.length ; i++ )
-          {
-            T3bytexor[i] = (byte) T3intxor[i] ;
+              T3bytexor[i] = (byte) ans;
           }
           Element T3 = pairing.getG1().newElement();
           bythread = T3.setFromBytes(T3bytexor);
@@ -357,8 +420,6 @@ public class MainCode {
           wordSearch.setRequiredTime((time_generater_key_end-time_generater_key_start));
           // TEST()
 
-          time_generater_key_start  = System.currentTimeMillis();
-
           Element SKsT1 = wordSearch.getT1().duplicate();
           SKsT1.mulZn(sender.getSKu1());
           byte [] SKsT1byte = SKsT1.toBytes();
@@ -369,15 +430,15 @@ public class MainCode {
         //   int [] T2byte = T2bytexor;
         //   int [] T3byte = T3bytexor;
           lenFinal = Math.max(T2byte.length, SKsT1byte.length);
-          int [] T2dashbyte = new int[lenFinal];
-          for( int  i = 0 ; i < T2dashbyte.length ; i++ )
+          byte [] T2dashintobyte = new byte[lenFinal];
+          for( int  i = 0 ; i < lenFinal ; i++ )
           {
               byte x =  T2byte[i];
               byte y =  SKsT1byte[i];
               int xint = x;
               int yint = y;
               int ans = ( xint ^ yint );
-              T2dashbyte[i] = ans;
+              T2dashintobyte[i] = (byte) ans;
               
               // if(H2wSKRByte[i]!=T2dashbyte[i])
               //   {
@@ -386,31 +447,20 @@ public class MainCode {
           }
 
           lenFinal = Math.max(T3byte.length, SKsT1byte.length);
-          int [] T3dashbyte = new int[lenFinal];
-          for( int  i = 0 ; i < T3dashbyte.length ; i++ )
+          byte [] T3dashintobyte = new byte[lenFinal];
+          for( int  i = 0 ; i < lenFinal ; i++ )
           {
               byte x =  T3byte[i];
               byte y =  SKsT1byte[i];
               int xint = x;
               int yint = y;
               int ans = ( xint ^ yint );
-              T3dashbyte[i] = ans;
+              T3dashintobyte[i] = (byte) ans;
                 // if(hash3WordByte[i]!=T3dashbyte[i])
                 // {
                 //   System.out.println(i+"   1111    "+T3dashbyte[i]+"   --==--   "+T3byte[i]+"   ^   "+SKsT1byte[i] +"  ---  "+hash3WordByte[i]);
                 // }
           }
-
-          byte [] T2dashintobyte = new byte[T2dashbyte.length];
-          for ( int i = 0 ; i < T2dashbyte.length ; i++)
-          {
-                T2dashintobyte[i] = (byte)T2dashbyte[i];
-          }       
-          byte [] T3dashintobyte = new byte[T3dashbyte.length];
-          for ( int i = 0 ; i < T3dashbyte.length ; i++)
-          {
-                T3dashintobyte[i] = (byte)T3dashbyte[i];
-          } 
           // if you comment bellow fourlines uncommment  t2dash line then it run perfect
           
           Element T2dash = pairing.getG1().newElement();
@@ -431,10 +481,8 @@ public class MainCode {
           firstElementPair.add(T3dash);
         //   System.out.println("firstElementPair 2  "+firstElementPair);
           Element hash4pair =  pairing.pairing(firstElementPair, cipherword.getUi());
-          
-          byte [ ] hash4pairbyte = hash4pair.toBytes();
   
-          BigInteger hash4pairbig = new BigInteger(hash4pairbyte);
+          BigInteger hash4pairbig = hash4(hash4pair);
           String equality;
 
           // System.out.println("------------------H2wSKRByte-----------------"+H2wSKRByte.length);
@@ -483,17 +531,19 @@ public class MainCode {
                 System.out.println("\n oh No oh NO oh No !!! \nsuccessfully didn't find  the word\n");
                 equality = "\n oh No oh NO oh No !!! \nsuccessfully didn't find  the word\n"+"\n hash4pairbig  : "+hash4pairbig+"\n Vi()          : "+cipherword.getVi();
           }
-          System.out.println(" hash4pairbig  q--- "+hash4pairbig);
-          System.out.println("cipherword.getVi()--- "+cipherword.getVi());
+
+          
+          System.out.println("hash4pairbig     q---   "+hash4pairbig);
+          System.out.println("cipherword.getVi()---   "+cipherword.getVi());
           
           time_generater_key_end  = System.currentTimeMillis();
-          String ret;
-          ret = r.toString();
-          ret +=" \n sender key------------- \n\n"+sender.toString();
-          ret +=" \n receiver key------------- \n\n"+receiver.toString();
-          ret +=" \n cipher of word ------------- \n\n"+cipherword.toString();
-          ret +=" \n Trapdoor of word ------------- \n\n"+wordSearch.toString();
-          ret += "\n Checking Trapdoor gives same reasult or not \n\n";
+          String ret="";
+          // ret = r.toString();
+          // ret +=" \n sender key------------- \n\n"+sender.toString();
+          // ret +=" \n receiver key------------- \n\n"+receiver.toString();
+          // ret +=" \n cipher of word ------------- \n\n"+cipherword.toString();
+          // ret +=" \n Trapdoor of word ------------- \n\n"+wordSearch.toString();
+          // ret += "\n Checking Trapdoor gives same reasult or not \n\n";
           ret += equality ;
         
         
@@ -505,14 +555,18 @@ public class MainCode {
           cipher += cipherword.requiredTime;
           trapdoor += wordSearch.requiredTime;
           test += (time_generater_key_end-time_generater_key_start);
-        }
+        
+        // }
+
+
         // setup /= 1000;
         // senderkey /= 1000;
         // receiverkey /= 1000;
         // cipher /=1000;
         // trapdoor /= 1000;
         // test /= 1000;
-        System.out.println("\nTime required for 1000 iterations.");
+      
+        System.out.println("\nTime required for milli sec iterations.");
         System.out.println("setup "+setup);
         System.out.println("senderkey "+senderkey);
         System.out.println("receiverkey "+receiverkey);

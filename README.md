@@ -36,14 +36,14 @@ The workspace contains two folders, where:
         Programming                     : JAVA Programming language.
 
 
-### Avarage time to run algorithm.
+### Avarage time to run algorithm. (SHA-256)used in Hash.
 
-        Setup                           : 19.160 (milli) second.
-        Sender keygen                   : 104.070 (milli) second.
-        Receiver keygen                 : 100.242 (milli) second.
-        Cipher                          : 162.679 (milli) second.
-        Trapdoor                        : 68.576 (milli) second.
-        Test                            : 54.634 (milli) second.
+        Setup                           : 31.492 (milli) second.
+        Sender keygen                   : 155.749 (milli) second.
+        Receiver keygen                 : 153.459 (milli) second.
+        Cipher                          : 247.070 (milli) second.
+        Trapdoor                        : 108.658 (milli) second.
+        Test                            : 146.516 (milli) second.
 
 
 ## Java Vscode
