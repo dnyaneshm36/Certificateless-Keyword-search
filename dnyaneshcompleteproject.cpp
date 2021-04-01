@@ -121,7 +121,7 @@ void generate_keys_sender_receiver(client * user,string userid)
 	//ePPK       should run by KGC
 	{
 		
-		user->IDu = &userid[0];
+		user->IDu  = &userid[0];
   		element_init_G1(user->Qu,globle_setup.pairing);
 		int len = userid.size();
 		element_from_hash(user->Qu, user->IDu, len);
