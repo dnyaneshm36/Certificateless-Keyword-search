@@ -10,7 +10,6 @@ using namespace std;
 typedef struct setup_output {
 
 	mpz_t k; 
-
 	char * type;
 	mpz_t q;
 	mpz_t h;
