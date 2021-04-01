@@ -78,6 +78,7 @@ public class scfMPEKS {
 
             //S = (M,N1,N2,...,Nn)-(tA,H* [eCH(w1),C)At],H*[e(H(w2),C)^t], ...,H*[e(HCwn),C)^t]) //let n=3, w1=Barclays, w2=Finance, w3-2017
 
+            
             long SCF_MPEKS_start = System.currentTimeMillis();
             Element t_MPEKS = pairing.getZr().newRandomElement(); //t
             Element M = A.duplicate(); 
