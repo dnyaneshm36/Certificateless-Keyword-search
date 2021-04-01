@@ -30,7 +30,7 @@ The workspace contains two folders, where:
         source /etc/environment
 #### Verify that the environment variable is set.
         echo $JAVA_HOME
-
+for infromation check. [more](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-ubuntu-18-04)
 
 # Performance
 ### Machine configurations.
