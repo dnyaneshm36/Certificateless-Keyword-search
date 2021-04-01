@@ -62,12 +62,20 @@ public class MainCode {
         //H2: {0,1}*→Zq*
         static BigInteger hash2_asscii(String str, BigInteger q)
         {
-            int l = str.length();
+
+            String shastring = "";
+            try {
+              shastring = toHexString(getSHA(str));
+            } catch (NoSuchAlgorithmException e) {
+              System.out.println(" No such Algorithm exception occurred ");
+              e.printStackTrace();
+            }
+            int l = shastring.length();
             int convert;
             BigInteger sum = new BigInteger("0");
             for ( int i = 0 ; i < l ; i++ )
             {
-                convert = (int) str.charAt(i) ;
+                convert = (int) shastring.charAt(i) ;
 
                 // convert int to BigInteger
                 BigInteger bigconv = BigInteger.valueOf(convert);
