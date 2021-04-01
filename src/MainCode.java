@@ -1,3 +1,5 @@
+package src;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -510,6 +512,7 @@ public class MainCode {
         // cipher /=1000;
         // trapdoor /= 1000;
         // test /= 1000;
+        System.out.println("\nTime required for 1000 iterations.");
         System.out.println("setup "+setup);
         System.out.println("senderkey "+senderkey);
         System.out.println("receiverkey "+receiverkey);
