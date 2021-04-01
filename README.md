@@ -23,7 +23,7 @@ The workspace contains two folders, where:
         javac -version
 
 # Performance
-## Machine configurations.
+### Machine configurations.
         OS                              : Ubuntu 20.04.2 LTS
         OS TYPE                         : 64-bit
         Architecture:                   : x86_64
@@ -36,7 +36,7 @@ The workspace contains two folders, where:
         Programming                     : JAVA Programming language.
 
 
-## Avarage time to run algorithm.
+### Avarage time to run algorithm.
 
         Setup                           : 19.160 (milli) second.
         Sender keygen                   : 104.070 (milli) second.
