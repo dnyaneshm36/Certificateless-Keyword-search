@@ -1,0 +1,7 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "jpbc Library/jpbc-api-2.0.0.jar",
+        "jpbc Library/jpbc-plaf-2.0.0.jar"
+    ]
+}
