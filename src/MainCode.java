@@ -4,15 +4,12 @@ package src;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest; 
-import java.security.NoSuchAlgorithmException; 
-  
-
 import it.unisa.dia.gas.jpbc.Element;
-import it.unisa.dia.gas.jpbc.Field;
 import it.unisa.dia.gas.jpbc.Pairing;
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 
@@ -162,7 +159,7 @@ public class MainCode {
         PairingFactory.getInstance().setUsePBCWhenPossible(true);
         
         /* Return Zr */
-        Field Zr = pairing.getZr();
+        // Field Zr = pairing.getZr();
 
         // /* Return G1 */
         // Field G1 = pairing.getG1();
@@ -335,7 +332,7 @@ public class MainCode {
           String str = data;
           BigInteger q = new BigInteger(str);
           BigInteger rethash = hash2_asscii(word, q);
-          Element hash = Zr.newElement(rethash);
+          Element hash = pairing.getZr().newElement(rethash);
           Element first = receiver.getQu().duplicate();
           first.mulZn(hash);
           first.mulZn(Ri);
@@ -369,7 +366,7 @@ public class MainCode {
 
           String wordchecking = "wordto_encrption";
           BigInteger hash2big = hash2_asscii(wordchecking, q);
-          Element hash2 = Zr.newElement(hash2big);
+          Element hash2 = pairing.getZr().newElement(hash2big);
           Element T1 = r.getP().duplicate();
           T1.mulZn(r.getMaster_key_lamda());
           Element H2wSKR = receiver.getSKu2().duplicate();
