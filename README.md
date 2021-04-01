@@ -21,6 +21,16 @@ The workspace contains two folders, where:
         sudo apt install default-jdk
 ### Verify the installation.
         javac -version
+### Setting the JAVA_HOME Environment Variable.
+#### Open editer by cmd.
+        sudo gedit /etc/environment
+#### Copy paste the path.       
+        JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+#### Reloading changes.
+        source /etc/environment
+#### Verify that the environment variable is set.
+        echo $JAVA_HOME
+
 
 # Performance
 ### Machine configurations.
@@ -36,7 +46,7 @@ The workspace contains two folders, where:
         Programming                     : JAVA Programming language.
 
 
-### Avarage time to run algorithm. (SHA-256)used in Hash.
+### Avarage time to run algorithm. (SHA-256) used in Hash.
 
         Setup                           : 31.492 (milli) second.
         Sender keygen                   : 155.749 (milli) second.
