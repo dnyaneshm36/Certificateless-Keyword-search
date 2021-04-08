@@ -48,8 +48,8 @@ public class hash1time {
         // }
         shastring = str;
         byte [] shatringbyte = shastring.getBytes();
-        // Element g1 = pairing.getG1().newElement().setFromHash(shatringbyte, 0, shatringbyte.length);
-        Element g1 = pairing.getG1().newElementFromBytes(shatringbyte);
+        Element g1 = pairing.getG1().newElement().setFromHash(shatringbyte, 0, shatringbyte.length);
+        // Element g1 = pairing.getG1().newElementFromBytes(shatringbyte);
         return g1.duplicate();
     }
     public static void main(String[] args) throws Exception {
