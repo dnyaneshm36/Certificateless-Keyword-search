@@ -53,7 +53,7 @@ public class MainCode {
             }
             byte [] shatringbyte = shastring.getBytes();
     
-            Element g1 = pairing.getG1().newElement().setFromHash(shatringbyte, 0, shatringbyte.length);
+            Element g1 = pairing.getG1().newElementFromBytes(shatringbyte);
             return g1.duplicate();
         }
         //H2: {0,1}*→Zq*
@@ -105,7 +105,7 @@ public class MainCode {
             }
             byte [] shatringbyte = shastring.getBytes();
     
-            Element g1 = pairing.getG1().newElement().setFromHash(shatringbyte, 0, shatringbyte.length);
+            Element g1 = pairing.getG1().newElementFromBytes(shatringbyte);
             return g1.duplicate();
         }
         // H4:G2→{0,1}f
